@@ -1120,7 +1120,7 @@ footer {
       document.querySelectorAll('[data-install-btn]').forEach(function(btn) {
         if (isStandalone) {
           btn.textContent = 'Abrir o PicGrade →';
-          // btn.setAttribute('href', 'https://picgrade.app'); // em desenvolvimento
+          // btn.setAttribute('href', 'https://gabaritou-chi.vercel.app'); // em desenvolvimento
           btn.setAttribute('target', '_blank');
           btn.removeAttribute('data-install-btn');
         }
@@ -1129,7 +1129,7 @@ footer {
 
     function handleInstall(e) {
       e.preventDefault();
-      // window.open('https://picgrade.app', '_blank'); // em desenvolvimento
+      // window.open('https://gabaritou-chi.vercel.app', '_blank'); // em desenvolvimento
       showEmBreve();
     }
 
@@ -1393,7 +1393,7 @@ footer {
 <script>
 function showEmBreve(e) {
   if (e) e.preventDefault();
-  // Link futuro: https://picgrade.app
+  // Link futuro: https://gabaritou-chi.vercel.app
 
   // Se estiver em desktop, mostrar a tela de aviso mobile-only
   if (window.innerWidth >= 768) {
@@ -1427,8 +1427,8 @@ function closeDesktopWall() {
   <div class="dw-title">O PicGrade foi feito<br>para o celular.</div>
   <div class="dw-sub">Aponte a câmera do seu smartphone para o QR code abaixo e acesse pelo celular.</div>
   <div class="dw-qr">
-<img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fpicgrade.app&ecc=H" alt="QR Code picgrade.app" width="220" height="220" />
-    <div class="dw-qr-label">picgrade.app</div>
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fgabaritou-chi.vercel.app&ecc=H" alt="QR Code gabaritou-chi.vercel.app" width="220" height="220" />
+    <div class="dw-qr-label">gabaritou-chi.vercel.app</div>
   </div>
 </div>
 
