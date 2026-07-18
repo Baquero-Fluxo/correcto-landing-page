@@ -1439,4 +1439,19 @@ function closeDesktopWall() {
 
 
 </body>
+<script>
+  (function(){
+    try{
+      const navRight = document.querySelector('.nav-right');
+      if(navRight && !navRight.querySelector('a[href="/blog"]')){
+        const a = document.createElement('a');
+        a.href = '/blog';
+        a.className = 'btn-nav-login';
+        a.style.marginLeft = '10px';
+        a.textContent = 'Blog';
+        navRight.appendChild(a);
+      }
+    }catch(e){console.warn(e)}
+  })();
+</script>
 </html>
