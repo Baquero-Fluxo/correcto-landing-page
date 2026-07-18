@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PicGrade — Corrija provas em segundos</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --tide:     #1A6275;
+  --tide-dk:  #124d5c;
+  --tide-lt:  #E2EFF3;
+  --tide-xs:  #f0f7fa;
+  --creme:    #F5F0E8;
+  --creme-dp: #EDE8DF;
+  --border:   #E0D9CE;
+  --ink:      #1A1814;
+  --slate:    #4A4844;
+  --muted:    #9A9488;
+  --green:    #1A6B3A;
+  --green-lt: #E8F5EE;
+  --green-bd: #A8D8BA;
+  --red:      #B84A2E;
+  --red-lt:   #FDECEA;
+  --red-bd:   #F0C0BB;
+  --white:    #FFFFFF;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--white);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* ─── DESKTOP ─── */
+
+/* Tela de bloqueio desktop — só aparece ao clicar em instalar */
+#desktop-wall {
+  display: none;
+  position: fixed; inset: 0; z-index: 99999;
+  background: #E8E4DC;
+  align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+  padding: 40px 24px;
+  overflow-y: auto;
+}
+#desktop-wall .dw-icon {
+  width: 64px; height: 64px; border-radius: 16px;
+}
+#desktop-wall .dw-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; font-weight: 400; color: var(--ink);
+  line-height: 1.2; max-width: 340px;
+}
+#desktop-wall .dw-sub {
+  font-size: 15px; color: var(--slate);
+  max-width: 320px; line-height: 1.6;
+}
+#desktop-wall .dw-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#desktop-wall .dw-qr img {
+  display: block;
+  width: min(280px, 100%);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12);
+}
+#desktop-wall .dw-qr-label {
+  font-size: 12px; color: var(--muted);
+  margin-top: 10px; letter-spacing: .04em;
+  text-transform: uppercase; font-weight: 500;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+}
+.nav-inner {
+  max-width: 1040px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-name { font-family: 'Instrument Serif', serif; font-size: 22px; color: var(--ink); letter-spacing: -.2px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-free {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--creme); border: 1px solid var(--border);
+  color: var(--slate); font-size: 13px; font-weight: 400;
+  padding: 7px 14px; border-radius: 99px;
+  white-space: nowrap;
+}
+.nav-free strong { color: var(--green); font-weight: 600; }
+.btn-nav-login {
+  background: transparent; color: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 8px 18px; font-size: 14px; font-weight: 500;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  font-family: 'Inter', sans-serif;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.btn-nav-login:hover { border-color: var(--tide); color: var(--tide); }
+.btn-primary {
+  background: var(--tide); color: var(--white);
+  border: none; border-radius: 9px;
+  padding: 9px 22px; font-size: 14px; font-weight: 600;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  font-family: 'Inter', sans-serif;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--tide-dk); }
+@media(max-width:600px){
+  .nav-free { display: none; }
+  .btn-nav-login { display: none; }
+}
+
+/* ─── HERO ─── */
+.hero {
+  padding: 40px 32px 72px;
+  text-align: center;
+  background: var(--white);
+}
+.hero-inner { max-width: 680px; margin: 0 auto; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green-lt); border: 1px solid var(--green-bd);
+  color: var(--green); border-radius: 99px;
+  padding: 9px 22px; font-size: 16px; font-weight: 500;
+  margin-bottom: 20px;
+}
+.badge-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--green); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(42px, 7vw, 72px);
+  font-weight: 400; line-height: 1.06; letter-spacing: -.3px;
+  color: var(--ink); margin-bottom: 6px;
+}
+.hero h1 em { color: var(--tide); font-style: italic; }
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--slate); font-weight: 300;
+  line-height: 1.7; margin: 20px auto 40px;
+  max-width: 520px;
+}
+
+.hero-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.btn-hero {
+  background: var(--tide); color: var(--white); border: none;
+  border-radius: 12px; padding: 15px 34px;
+  font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  transition: background .15s, transform .15s;
+  box-shadow: 0 2px 12px rgba(26,98,117,.25);
+}
+.btn-hero:hover { background: var(--tide-dk); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 14px 24px; font-size: 15px; font-weight: 500;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: border-color .15s, color .15s;
+}
+.btn-ghost:hover { border-color: var(--tide); color: var(--tide); }
+.hero-note { font-size: 12px; color: var(--muted); }
+
+/* ─── HERO IMAGE (logo abaixo do header) ─── */
+.hero-image-wrap {
+  width: 100%;
+  background: var(--white);
+  padding: 0;
+  position: relative;
+}
+.hero-image-inner {
+  max-width: 100%;
+  margin: 0;
+  position: relative;
+}
+.hero-img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  min-height: unset;
+  object-fit: contain;
+  object-position: center center;
+  background: var(--creme);
+  display: block;
+}
+
+/* Caption flutuante sobre a imagem */
+.hero-img-caption { display: none; }
+
+/* Tagline abaixo da imagem */
+.hero-tagline {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(17px, 3vw, 22px);
+  font-style: italic;
+  color: var(--tide);
+  text-align: center;
+  padding: 18px 24px 0;
+  letter-spacing: .01em;
+  background: var(--white);
+}
+.hero-img-caption strong { color: var(--green); font-weight: 600; }
+
+/* ─── DESKTOP: hero em grid lado a lado ─── */
+@media (min-width: 900px) {
+  .hero-flex {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 56px;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 72px 32px;
+  }
+  .hero-flex .hero {
+    padding: 0;
+    text-align: left;
+  }
+  .hero-flex .hero-inner { margin: 0; max-width: 540px; }
+  .hero-flex .hero-badge { margin-bottom: 24px; }
+  .hero-flex .hero-sub { margin-left: 0; margin-right: 0; }
+  .hero-flex .hero-actions { justify-content: flex-start; }
+  .hero-flex .hero-note { text-align: left; }
+
+  .hero-flex .hero-image-wrap {
+    order: 2;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(26,18,20,.15);
+  }
+  .hero-flex .hero-tagline { display: none; }
+  .hero-flex .hero-img-caption {
+    display: flex !important;
+    position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(10px);
+    border-radius: 99px;
+    padding: 10px 22px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 16px; font-style: italic; color: var(--tide);
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+  }
+}
+
+/* ─── HOW ─── */
+.how-section {
+  padding: 96px 32px;
+  background: var(--creme);
+  border-top: 1px solid var(--border);
+}
+.how-inner { max-width: 1040px; margin: 0 auto; }
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--tide); margin-bottom: 10px;
+}
+.section-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(28px, 4vw, 44px); font-weight: 400;
+  line-height: 1.12; color: var(--ink); letter-spacing: -.2px;
+}
+.section-p {
+  font-size: 16px; color: var(--slate); font-weight: 300;
+  line-height: 1.7; max-width: 400px; margin-top: 10px;
+}
+.how-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 64px; align-items: center; margin-top: 56px;
+}
+@media(max-width:720px){ .how-grid { grid-template-columns: 1fr; } }
+
+/* Phone mockup — light */
+.phone-outer { max-width: 210px; margin: 0 auto; }
+.phone-shell {
+  background: var(--creme-dp);
+  border: 1.5px solid var(--border);
+  border-radius: 36px; padding: 10px;
+  box-shadow:
+    0 2px 8px rgba(26,18,20,.06),
+    0 12px 40px rgba(26,18,20,.10);
+}
+.phone-notch {
+  width: 68px; height: 18px;
+  background: var(--creme-dp);
+  border-radius: 0 0 12px 12px;
+  margin: 0 auto 8px;
+}
+.phone-screen {
+  background: var(--white); border-radius: 26px;
+  overflow: hidden; min-height: 360px;
+  display: flex; flex-direction: column;
+  border: 1px solid var(--border);
+}
+.ps-bar {
+  background: var(--tide); padding: 12px 14px;
+  display: flex; align-items: center; gap: 9px;
+}
+.ps-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: rgba(255,255,255,.18);
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+}
+.ps-title { color: #fff; font-size: 12px; font-weight: 600; }
+.ps-sub { color: rgba(255,255,255,.6); font-size: 9px; }
+.ps-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.scan-area {
+  background: var(--creme); border-radius: 10px; height: 88px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 5px;
+  border: 1.5px dashed #A8CDD8; position: relative; overflow: hidden;
+}
+.scan-beam {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--tide), transparent);
+  animation: beam 1.8s ease-in-out infinite;
+}
+@keyframes beam { 0%{top:0} 100%{top:100%} }
+.scan-emoji { font-size: 20px; }
+.scan-hint { font-size: 9px; color: var(--muted); }
+.ps-row {
+  background: var(--creme); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  animation: up .4s ease forwards; opacity: 0;
+}
+.ps-row:nth-child(1){ animation-delay:.1s }
+.ps-row:nth-child(2){ animation-delay:.25s }
+.ps-row:nth-child(3){ animation-delay:.4s }
+@keyframes up { to{opacity:1;transform:translateY(0)} from{opacity:0;transform:translateY(5px)} }
+.ps-name { font-size: 10px; font-weight: 600; color: var(--ink); }
+.ps-pts  { font-size: 8px; color: var(--muted); }
+.ps-nota {
+  font-family: 'Geist Mono', monospace;
+  font-size: 14px; font-weight: 700; color: var(--tide);
+}
+.ps-nota.red { color: var(--red); }
+
+.steps { display: flex; flex-direction: column; gap: 32px; }
+.step  { display: flex; gap: 18px; }
+.step-num {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--tide-lt); color: var(--tide);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; border: 1.5px solid #A8CDD8;
+}
+.step-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.step-desc  { font-size: 13px; color: var(--slate); font-weight: 300; line-height: 1.6; }
+
+/* ─── BENEFITS ─── */
+/* ─── CALCULADORA ─── */
+.calc-section {
+  padding: 80px 32px;
+  background: var(--creme);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.calc-inner { max-width: 640px; margin: 0 auto; }
+.calc-eyebrow {
+  font-size: 12px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--tide);
+  margin-bottom: 10px;
+}
+.calc-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 400; color: var(--ink);
+  line-height: 1.2; margin-bottom: 8px;
+}
+.calc-subtitle {
+  font-size: 15px; color: var(--slate);
+  margin-bottom: 36px; line-height: 1.6;
+}
+.calc-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media(max-width:520px){ .calc-fields { grid-template-columns: 1fr; } }
+.calc-field { display: flex; flex-direction: column; gap: 6px; }
+.calc-field label {
+  font-size: 13px; font-weight: 500; color: var(--slate);
+}
+.calc-field input, .calc-field select {
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px; font-family: 'Inter', sans-serif;
+  color: var(--ink); background: var(--white);
+  transition: border-color .15s;
+  -webkit-appearance: none;
+}
+.calc-field input:focus, .calc-field select:focus {
+  outline: none; border-color: var(--tide);
+}
+.calc-field input {
+  caret-color: #000;
+}
+.calc-field input::placeholder { color: var(--muted); }
+
+/* Resultado */
+.calc-result {
+  margin-top: 28px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: none;
+}
+.calc-result.visible { display: block; }
+.calc-result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media(max-width:480px){ .calc-result-grid { grid-template-columns: 1fr; } }
+.calc-stat {
+  background: var(--tide-xs);
+  border: 1px solid var(--tide-lt);
+  border-radius: 12px;
+  padding: 18px 16px;
+}
+.calc-stat-val {
+  font-family: 'Instrument Serif', serif;
+  font-size: 32px; color: var(--tide);
+  line-height: 1; margin-bottom: 4px;
+}
+.calc-stat-label {
+  font-size: 12px; color: var(--slate); line-height: 1.4;
+}
+.calc-pkg {
+  background: var(--tide);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.calc-pkg-left {}
+.calc-pkg-tag {
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: rgba(255,255,255,.6);
+  margin-bottom: 4px;
+}
+.calc-pkg-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px; color: #fff; margin-bottom: 2px;
+}
+.calc-pkg-desc { font-size: 13px; color: rgba(255,255,255,.7); }
+.calc-pkg-price {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; color: #fff; white-space: nowrap;
+}
+
+.calc-hourcost {
+  background: #FFF8EC;
+  border: 2px solid #F5A623;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-top: 14px;
+}
+.calc-hourcost-top {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px; color: #B87415;
+}
+.calc-hourcost-label {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: #B87415;
+}
+.calc-hourcost-val {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px; line-height: 1;
+  color: #B87415; margin-bottom: 8px;
+}
+.calc-hourcost-msg {
+  font-size: 13px; line-height: 1.5;
+  color: #7A5010; font-style: italic;
+  margin-bottom: 10px;
+}
+.calc-hourcost-details {
+  border-top: 1px solid #F5C97A;
+  padding-top: 10px; margin-top: 4px;
+}
+.calc-hourcost-details summary {
+  font-size: 12px; font-weight: 600;
+  color: #B87415; cursor: pointer;
+  list-style: none; display: flex; align-items: center; gap: 6px;
+}
+.calc-hourcost-details summary::-webkit-details-marker { display: none; }
+.calc-hourcost-details summary::before {
+  content: '▸'; font-size: 10px; color: #B87415;
+  transition: transform .2s;
+}
+.calc-hourcost-details[open] summary::before { transform: rotate(90deg); }
+.calc-hourcost-details p {
+  font-size: 12px; color: #7A5010; line-height: 1.6;
+  margin-top: 8px;
+}
+
+.calc-toggle {
+  display: flex; gap: 8px; margin-bottom: 0;
+}
+.calc-tog {
+  padding: 10px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  font-size: 13px; font-weight: 500; font-family: 'Inter', sans-serif;
+  color: var(--slate); background: var(--white);
+  cursor: pointer; transition: all .15s;
+}
+.calc-tog.active {
+  background: var(--tide); color: #fff; border-color: var(--tide);
+}
+
+.benefits-section { padding: 96px 32px; background: var(--white); }
+.benefits-inner { max-width: 1040px; margin: 0 auto; }
+.benefits-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px; margin-top: 52px;
+}
+.ben-card {
+  background: var(--creme); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px;
+  transition: box-shadow .2s;
+}
+.ben-card:hover { box-shadow: 0 4px 20px rgba(26,98,117,.08); }
+.ben-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+.ben-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--tide-lt); border: 1px solid #A8CDD8;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ben-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.ben-desc  { font-size: 13px; color: var(--slate); font-weight: 300; line-height: 1.65; }
+
+/* ─── PRICING ─── */
+.pricing-section {
+  padding: 96px 32px;
+  background: var(--creme);
+  border-top: 1px solid var(--border);
+}
+.pricing-inner { max-width: 1040px; margin: 0 auto; }
+/* grid 2×2 estilo app */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-top: 48px;
+  max-width: 960px;
+}
+.p-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 44px 22px 20px;
+  position: relative;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.p-card:hover { box-shadow: 0 4px 20px rgba(26,98,117,.1); }
+.p-card.pop  { border-color: var(--tide); border-width: 2px; }
+.p-card.best { border-color: var(--border); }
+
+/* badge como selo sobreposto — fora do fluxo */
+.p-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  border-radius: 99px;
+  padding: 5px 10px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  font-size: 9px; font-weight: 800; letter-spacing: .06em;
+  text-transform: uppercase; line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
+  pointer-events: none;
+  z-index: 1;
+}
+.p-badge.pop  { background: var(--tide); color: var(--white); }
+.p-badge.best { background: var(--green); color: var(--white); }
+
+
+/* número grande de correções */
+.p-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 38px; line-height: 1; font-weight: 400;
+  color: var(--ink); letter-spacing: -1px;
+  margin-bottom: 0;
+}
+.p-card.pop .p-num { color: var(--tide); }
+
+.p-qty {
+  font-size: 15px; color: var(--muted); font-weight: 500; letter-spacing: .04em;
+  text-transform: uppercase; margin-bottom: 16px;
+}
+
+/* linha separadora fina */
+.p-divider {
+  height: 1px; background: var(--border); margin: 4px 0 12px;
+}
+
+.p-val {
+  font-size: 28px; font-weight: 700; color: var(--ink);
+  letter-spacing: -.3px;
+}
+.p-per { font-size: 11px; color: var(--muted); font-family: 'Geist Mono', monospace; }
+.p-time { font-size: 12px; color: var(--tide); font-weight: 600; margin-top: 6px; }
+.p-equiv { font-size: 13px; font-weight: 700; color: var(--ink); margin-top: 6px; }
+.p-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 3px; }
+.pricing-value-box {
+  margin-top: 32px;
+  background: var(--creme);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px 24px 20px;
+}
+.pricing-value-title {
+  font-size: 13px; font-weight: 600; color: var(--ink);
+  margin-bottom: 12px;
+}
+.pricing-value-list {
+  list-style: none; display: flex; flex-direction: column; gap: 8px;
+}
+.pricing-value-list li {
+  font-size: 14px; color: var(--slate); line-height: 1.5;
+  padding-left: 18px; position: relative;
+}
+.pricing-value-list li::before {
+  content: '✓'; position: absolute; left: 0;
+  color: var(--tide); font-weight: 700;
+}
+
+.pricing-note {
+  text-align: left; margin-top: 24px;
+  font-size: 13px; color: var(--muted); font-weight: 300;
+  max-width: 640px;
+}
+.pricing-note strong { color: var(--ink); font-weight: 500; }
+
+@media(max-width:480px) {
+  .pricing-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .p-num { font-size: 40px; }
+  .p-val { font-size: 18px; }
+}
+
+/* ─── FAQ ─── */
+.faq-section { padding: 96px 32px; background: var(--white); }
+.faq-inner { max-width: 1040px; margin: 0 auto; }
+.faq-layout {
+  display: grid; grid-template-columns: 1fr 1.6fr;
+  gap: 64px; align-items: start; margin-top: 52px;
+}
+@media(max-width:720px){ .faq-layout { grid-template-columns: 1fr; } }
+.faq-contact { margin-top: 20px; font-size: 13px; color: var(--muted); }
+.faq-contact a { color: var(--tide); text-decoration: none; font-weight: 500; }
+.faq-list { display: flex; flex-direction: column; gap: 8px; }
+.faq-item {
+  background: var(--creme); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.faq-q {
+  padding: 16px 20px; font-size: 14px; font-weight: 500; color: var(--ink);
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  cursor: pointer; user-select: none;
+}
+.faq-q:hover { color: var(--tide); }
+.faq-arr { font-size: 18px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+.faq-a {
+  display: none; padding: 0 20px 16px;
+  font-size: 13px; color: var(--slate); font-weight: 300; line-height: 1.65;
+}
+.faq-item.open .faq-a { display: block; }
+.faq-item.open .faq-arr { transform: rotate(45deg); color: var(--tide); }
+
+/* ─── CTA FINAL ─── */
+.cta-section {
+  padding: 96px 32px;
+  background: var(--creme);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+.cta-inner { max-width: 600px; margin: 0 auto; }
+.cta-section h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(32px, 5vw, 54px); font-weight: 400;
+  color: var(--ink); line-height: 1.1; margin-bottom: 16px;
+}
+.cta-section h2 em { color: var(--tide); font-style: italic; }
+.cta-section p {
+  font-size: 16px; color: var(--slate); font-weight: 300;
+  max-width: 420px; margin: 0 auto 36px; line-height: 1.7;
+}
+.cta-sub { margin-top: 14px; font-size: 12px; color: var(--muted); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--creme-dp); border-top: 1px solid var(--border);
+  padding: 28px 32px;
+}
+.footer-inner {
+  max-width: 1040px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px;
+}
+.footer-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+.footer-logo-name { font-family: 'Instrument Serif', serif; font-size: 17px; color: var(--ink); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; }
+.footer-links a:hover { color: var(--tide); }
+.footer-copy { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="nav-logo" aria-label="PicGrade home">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="56" height="56" rx="13" fill="#1A6275"/>
+        <rect x="11" y="11" width="14" height="14" rx="3" fill="white"/>
+        <rect x="31" y="11" width="14" height="14" rx="3" fill="white" opacity=".4"/>
+        <rect x="11" y="31" width="14" height="14" rx="3" fill="white" opacity=".4"/>
+        <rect x="31" y="31" width="14" height="14" rx="3" fill="white" opacity=".2"/>
+        <circle cx="39" cy="42" r="8" fill="#F5F0E8"/>
+        <polyline points="35,42 38,45 43,39" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="nav-logo-name">PicGrade</span>
+    </a>
+
+    <div class="nav-right">
+      <a href="https://picgrade-content.vercel.app" class="btn-nav-login" style="margin-left:10px; text-decoration:none;" target="_blank" rel="noopener">Blog</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO IMAGE — logo abaixo do header, antes do texto -->
+<div class="hero-flex">
+<div class="hero-image-wrap">
+  <div class="hero-image-inner">
+    <img
+      class="hero-img"
+      src="../images/hero-teachers.png"
+      alt="PicGrade — Corrija provas em segundos"
+    >
+    <div class="hero-img-caption">Transforme horas de correção em minutos.</div>
+  </div>
+</div>
+
+<div class="hero-tagline">Transforme horas de correção em minutos.</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      30 correções gratuitas — sem cartão
+    </div>
+    <h1>Menos tempo corrigindo.<br><em>Mais tempo livre.</em></h1>
+    <p class="hero-sub">
+      Pare de gastar horas corrigindo provas manualmente.<br><br>
+      Com o PicGrade, você corrige uma turma inteira em minutos usando apenas a câmera do celular.
+    </p>
+    <div class="hero-actions">
+      <!-- href temporariamente desativado: app em desenvolvimento -->
+      <a href="#" class="btn-hero em-breve" onclick="showEmBreve(event)">Instalar grátis → 30 correções grátis</a>
+    </div>
+    <p class="hero-note">Sem cartão de crédito. Sem assinatura.</p>
+  </div>
+</section>
+</div>
+
+<!-- HOW IT WORKS -->
+<section style="padding:0; background:var(--white); border-top:1px solid var(--border);">
+  <img
+    src="../images/how-it-works.png"
+    alt="Fotografe. Corrija. Pronto. — PicGrade em uso"
+    style="width:100%; display:block; object-fit:contain;"
+  >
+</section>
+
+<!-- CALCULADORA -->
+<section class="calc-section">
+  <div class="calc-inner">
+    <div class="calc-eyebrow">Calcule seu ganho</div>
+    <h2 class="calc-title">Quanto tempo você<br>pode recuperar usando o PicGrade?</h2>
+    <p class="calc-subtitle">Preencha com a sua realidade e veja o impacto no seu semestre.</p>
+
+    <div class="calc-fields">
+      <div class="calc-field">
+        <label for="c-turmas">Quantas turmas você tem?</label>
+        <input type="number" id="c-turmas" min="1" max="99" placeholder="ex: 4">
+      </div>
+      <div class="calc-field">
+        <label for="c-alunos">Alunos por turma</label>
+        <input type="number" id="c-alunos" min="1" max="99" placeholder="ex: 35">
+      </div>
+      <div class="calc-field">
+        <label for="c-provas">Provas por turma no semestre</label>
+        <input type="number" id="c-provas" min="1" max="30" placeholder="ex: 2">
+      </div>
+    </div>
+
+    <div class="calc-result" id="calc-result">
+
+      <!-- STATS -->
+      <div class="calc-result-grid">
+        <div class="calc-stat">
+          <div class="calc-stat-val" id="r-tempo">—</div>
+          <div class="calc-stat-label">horas economizadas<br>no semestre</div>
+        </div>
+        <div class="calc-stat">
+          <div class="calc-stat-val" id="r-correcoes">—</div>
+          <div class="calc-stat-label">correções<br>no semestre</div>
+        </div>
+      </div>
+
+      <!-- PACOTE -->
+      <div class="calc-pkg">
+        <div class="calc-pkg-left">
+          <div class="calc-pkg-tag">Pacote recomendado</div>
+          <div class="calc-pkg-name" id="r-pkg-nome">—</div>
+          <div class="calc-pkg-desc" id="r-pkg-desc">—</div>
+        </div>
+        <div class="calc-pkg-price" id="r-pkg-preco">—</div>
+      </div>
+
+      <!-- CARD DESTAQUE: custo por hora — vem por último -->
+      <div class="calc-hourcost" id="calc-hourcost">
+        <div class="calc-hourcost-top">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+          <span class="calc-hourcost-label">Quanto custa recuperar 1 hora do seu tempo?</span>
+        </div>
+        <div class="calc-hourcost-val" id="r-hourcost">—</div>
+        <div class="calc-hourcost-msg" id="r-hourcost-msg">Cada hora que o PicGrade devolve a você custa isso.</div>
+        <details class="calc-hourcost-details">
+          <summary>Como calculamos isso?</summary>
+          <p>Estimamos o tempo que o PicGrade economiza ao corrigir provas em comparação com a correção manual. Em seguida, dividimos o valor do custo das suas correções do semestre pelas horas de trabalho recuperadas.</p>
+          <p>O resultado é o custo aproximado para recuperar uma hora do seu tempo. Quanto mais provas você corrige ao longo do período, menor tende a ser esse custo.</p>
+        </details>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits-section">
+  <div class="benefits-inner">
+    <div class="eyebrow">Por que usar</div>
+    <h2 class="section-h">Por que usar o PicGrade?
+
+    Construído para a rotina do professor.</h2>
+    <div class="benefits-grid">
+      <div class="ben-card">
+        <div class="ben-header">
+          <div class="ben-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2h14M5 22h14M6 2v4l4 4-4 4v4M18 2v4l-4 4 4 4v4"/></svg>
+          </div>
+          <div class="ben-title">Corrija uma turma inteira em minutos</div>
+        </div>
+        <div class="ben-desc">O que levava horas agora leva poucos minutos.</div>
+      </div>
+      <div class="ben-card">
+        <div class="ben-header">
+          <div class="ben-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="17" r="1" fill="#1A6275"/></svg>
+          </div>
+          <div class="ben-title">Funciona só com o celular</div>
+        </div>
+        <div class="ben-desc">Sem scanner, sem equipamentos especiais.</div>
+      </div>
+      <div class="ben-card">
+        <div class="ben-header">
+          <div class="ben-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div class="ben-title">Pague apenas pelo que usar</div>
+        </div>
+        <div class="ben-desc">Créditos pré-pagos. Sem mensalidade. Sem compromisso.</div>
+      </div>
+      <div class="ben-card">
+        <div class="ben-header">
+          <div class="ben-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2" fill="#1A6275"/></svg>
+          </div>
+          <div class="ben-title">Confirmação antes da nota</div>
+        </div>
+        <div class="ben-desc">Você valida as respostas antes da correção final.</div>
+      </div>
+
+      <div class="ben-card">
+        <div class="ben-header">
+          <div class="ben-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg>
+          </div>
+          <div class="ben-title">Sem cadastro de turmas ou alunos</div>
+        </div>
+        <div class="ben-desc">Continue usando as provas que você já cria. Basta inserir o gabarito na primeira página, imprimir e fotografar as folhas respondidas. O PicGrade faz a correção automaticamente, sem exigir cadastro de turmas ou alunos.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section">
+  <div class="pricing-inner">
+    <div class="eyebrow">Planos</div>
+    <h2 class="section-h">Escolha o pacote ideal<br>para sua rotina.</h2>
+    <p class="section-p">Você só paga quando usa. Créditos não expiram. Comece com 30 correções gratuitas — sem cartão.</p>
+
+    <div class="pricing-grid">
+
+      <div class="p-card">
+        <div class="p-num">100</div>
+        <div class="p-qty">correções</div>
+        <div class="p-divider"></div>
+        <div class="p-val">R$ 16,90</div>
+        <div class="p-time">⏱️ Economize até 2h30 corrigindo provas.</div>
+        <div class="p-desc">Perfeito para começar e testar o sistema.</div>
+      </div>
+
+      <div class="p-card pop">
+        <span class="p-badge pop">Mais escolhido</span>
+        <div class="p-num">300</div>
+        <div class="p-qty">correções</div>
+        <div class="p-divider"></div>
+        <div class="p-val">R$ 44,90</div>
+        <div class="p-time">⏱️ Economize até 7h30 corrigindo provas.</div>
+        <div class="p-desc">Ideal para um semestre leve de provas.</div>
+      </div>
+
+      <div class="p-card">
+        <div class="p-num">600</div>
+        <div class="p-qty">correções</div>
+        <div class="p-divider"></div>
+        <div class="p-val">R$ 79,90</div>
+        <div class="p-time">⏱️ Economize até 15h corrigindo provas.</div>
+        <div class="p-desc">Para quem corrige com frequência ao longo do semestre.</div>
+      </div>
+
+      <div class="p-card">
+        <div class="p-num">1000</div>
+        <div class="p-qty">correções</div>
+        <div class="p-divider"></div>
+        <div class="p-val">R$ 119,90</div>
+        <div class="p-time">⏱️ Economize até 25h corrigindo provas.</div>
+        <div class="p-desc">Para uso contínuo durante o ano letivo.</div>
+      </div>
+
+      <div class="p-card best">
+        <span class="p-badge best">Recomendado</span>
+        <div class="p-num">1500</div>
+        <div class="p-qty">correções</div>
+        <div class="p-divider"></div>
+        <div class="p-val">R$ 169,90</div>
+        <div class="p-time">⏱️ Economize até 37h30 corrigindo provas.</div>
+        <div class="p-desc">Para quem quer usar sem se preocupar com créditos.</div>
+      </div>
+
+      <div class="p-card">
+        <span class="p-badge" style="background:#B5925A;color:#fff">Melhor custo</span>
+        <div class="p-num">3000</div>
+        <div class="p-qty">correções</div>
+        <div class="p-divider"></div>
+        <div class="p-val">R$ 299,90</div>
+        <div class="p-time">⏱️ Economize até 75h corrigindo provas.</div>
+        <div class="p-desc">Para alto volume de correções ao longo do ano.</div>
+      </div>
+
+    </div>
+
+    <div class="pricing-value-box">
+      <div class="pricing-value-title">O que você está comprando de verdade</div>
+      <ul class="pricing-value-list">
+        <li>Tempo de volta na sua rotina</li>
+        <li>Menos trabalho repetitivo</li>
+        <li>Mais tempo para ensinar, planejar ou descansar</li>
+        <li>Um fluxo simples de correção por celular</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center; margin-top: 32px;">
+      <!-- href temporariamente desativado: app em desenvolvimento -->
+      <a href="#" class="btn-hero em-breve" onclick="showEmBreve(event)">Instalar grátis → 30 correções grátis</a>
+    </div>
+
+    <p class="pricing-note">
+      Você só paga quando usa. <strong>Sem mensalidade. Sem compromisso.</strong><br>
+      Créditos não expiram. Comece com 30 correções gratuitas — sem cartão.
+    </p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="eyebrow">Dúvidas</div>
+    <h2 class="section-h">Perguntas frequentes.</h2>
+    <div class="faq-layout">
+      <div>
+        <p class="section-p">Tem alguma dúvida que não aparece aqui? Fale com a gente.</p>
+        <p class="faq-contact"><a href="mailto:oi@gabaritou.app">oi@gabaritou.app →</a></p>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item open">
+          <div class="faq-q" onclick="toggle(this)">Preciso pagar para testar?<span class="faq-arr">+</span></div>
+          <div class="faq-a">Não. Você recebe 30 correções gratuitas ao acessar o sistema.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggle(this)">Preciso de scanner ou impressora especial?<span class="faq-arr">+</span></div>
+          <div class="faq-a">Não. Apenas um celular com câmera e uma impressora comum.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggle(this)">Os créditos expiram?<span class="faq-arr">+</span></div>
+          <div class="faq-a">Não. Os créditos ficam disponíveis sem prazo de expiração.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggle(this)">Preciso cadastrar turmas ou alunos antes de usar?<span class="faq-arr">+</span></div>
+          <div class="faq-a">Não. O PicGrade não exige cadastro de turmas, alunos ou disciplinas. Crie o gabarito, insira-o na primeira página da prova, imprima normalmente e fotografe as folhas respondidas. O aplicativo corrige as provas automaticamente, enquanto você continua utilizando o diário de classe ou o sistema de notas que já usa.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggle(this)">O que acontece se eu trocar de celular?<span class="faq-arr">+</span></div>
+          <div class="faq-a">Se o app for desinstalado, os dados podem ser perdidos. Recomendamos baixar seus gabaritos.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggle(this)">Funciona com qualquer prova?<span class="faq-arr">+</span></div>
+          <div class="faq-a">Sim. Funciona com múltipla escolha e verdadeiro/falso.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section" id="cta">
+  <div class="cta-inner">
+    <div class="eyebrow">Comece agora</div>
+    <h2>Corrija provas em <em>segundos.</em></h2>
+    <p>Teste gratuitamente e veja quanto tempo você vai recuperar já na primeira turma.</p>
+    <!-- href temporariamente desativado: app em desenvolvimento -->
+      <a href="#" class="btn-hero em-breve" onclick="showEmBreve(event)">Instalar grátis → 30 correções grátis</a>
+    <p class="cta-sub">Sem cartão. Sem assinatura. Sem complicação.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <a href="#" class="footer-logo">
+      <svg width="22" height="22" viewBox="0 0 56 56" fill="none">
+        <rect width="56" height="56" rx="13" fill="#1A6275"/>
+        <rect x="11" y="11" width="14" height="14" rx="3" fill="white"/>
+        <rect x="31" y="11" width="14" height="14" rx="3" fill="white" opacity=".4"/>
+        <rect x="11" y="31" width="14" height="14" rx="3" fill="white" opacity=".4"/>
+        <rect x="31" y="31" width="14" height="14" rx="3" fill="white" opacity=".2"/>
+        <circle cx="39" cy="42" r="8" fill="#F5F0E8"/>
+        <polyline points="35,42 38,45 43,39" stroke="#1A6275" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="footer-logo-name">PicGrade</span>
+    </a>
+    <div class="footer-links">
+      <a href="#">Termos</a>
+      <a href="#">Privacidade</a>
+      <a href="#">Contato</a>
+    </div>
+    <div class="footer-copy">© 2026 PicGrade</div>
+  </div>
+</footer>
+
+<script>
+  /* ── FAQ toggle ── */
+  function toggle(el) { el.parentElement.classList.toggle('open'); }
+
+  /* ── PWA Install System ── */
+  (function() {
+    const isIOS        = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                      || navigator.standalone === true;
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function(e) {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function updateButtons() {
+      document.querySelectorAll('[data-install-btn]').forEach(function(btn) {
+        if (isStandalone) {
+          btn.textContent = 'Abrir o PicGrade →';
+          // btn.setAttribute('href', 'https://gabaritou-chi.vercel.app'); // em desenvolvimento
+          btn.setAttribute('target', '_blank');
+          btn.removeAttribute('data-install-btn');
+        }
+      });
+    }
+
+    function handleInstall(e) {
+      e.preventDefault();
+      // window.open('https://gabaritou-chi.vercel.app', '_blank'); // em desenvolvimento
+      showEmBreve();
+    }
+
+    /* ── Modal iOS ── */
+    function showIOSModal() {
+      var existing = document.getElementById('modal-ios');
+      if (existing) { existing.style.display = 'flex'; return; }
+
+      var m = document.createElement('div');
+      m.id = 'modal-ios';
+      m.setAttribute('role', 'dialog');
+      m.setAttribute('aria-modal', 'true');
+      m.innerHTML = `
+        <div class="im-backdrop" onclick="closeModal('modal-ios')"></div>
+        <div class="im-dialog">
+          <button class="im-close" onclick="closeModal('modal-ios')" aria-label="Fechar">✕</button>
+          <div class="im-img-wrap">
+            <div class="im-img" style="background-image:url('../images/install-preview-ios.png')"></div>
+          </div>
+          <div class="im-actions">
+            <button class="im-btn-cancel" onclick="closeModal('modal-ios')">Cancelar</button>
+            <button class="im-btn" onclick="closeModal('modal-ios')">Entendi</button>
+          </div>
+        </div>`;
+      document.body.appendChild(m);
+      requestAnimationFrame(function() { m.style.display = 'flex'; });
+    }
+
+    /* ── Modal Android com suporte nativo ── */
+    function showAndroidConfirm() {
+      var existing = document.getElementById('modal-android-confirm');
+      if (existing) { existing.style.display = 'flex'; return; }
+      var m = document.createElement('div');
+      m.id = 'modal-android-confirm';
+      m.setAttribute('role', 'dialog');
+      m.setAttribute('aria-modal', 'true');
+      m.innerHTML = `
+        <div class="im-backdrop" onclick="closeModal('modal-android-confirm')"></div>
+        <div class="im-dialog">
+          <button class="im-close" onclick="closeModal('modal-android-confirm')" aria-label="Fechar">✕</button>
+          <div class="im-img-wrap">
+            <div class="im-img" style="background-image:url('../images/install-preview-android.png')"></div>
+          </div>
+          <div class="im-actions">
+            <button class="im-btn-cancel" onclick="closeModal('modal-android-confirm')">Cancelar</button>
+            <button class="im-btn" onclick="doNativeInstall()">Instalar</button>
+          </div>
+        </div>`;
+      document.body.appendChild(m);
+      requestAnimationFrame(function() { m.style.display = 'flex'; });
+    }
+
+    window.doNativeInstall = function() {
+      closeModal('modal-android-confirm');
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function() { deferredPrompt = null; });
+      }
+    };
+
+    /* ── Modal Android fallback (sem suporte nativo) ── */
+    function showAndroidFallback() {
+      var existing = document.getElementById('modal-android');
+      if (existing) { existing.style.display = 'flex'; return; }
+
+      var m = document.createElement('div');
+      m.id = 'modal-android';
+      m.setAttribute('role', 'dialog');
+      m.setAttribute('aria-modal', 'true');
+      m.innerHTML = `
+        <div class="im-backdrop" onclick="closeModal('modal-android')"></div>
+        <div class="im-dialog">
+          <button class="im-close" onclick="closeModal('modal-android')" aria-label="Fechar">✕</button>
+          <div class="im-img-wrap">
+            <div class="im-img" style="background-image:url('../images/install-preview-android.png')"></div>
+          </div>
+          <div class="im-actions">
+            <button class="im-btn-cancel" onclick="closeModal('modal-android')">Cancelar</button>
+            <button class="im-btn" onclick="closeModal('modal-android')">Entendi</button>
+          </div>
+        </div>`;
+      document.body.appendChild(m);
+      requestAnimationFrame(function() { m.style.display = 'flex'; });
+    }
+
+    window.closeModal = function(id) {
+      var m = document.getElementById(id);
+      if (m) m.style.display = 'none';
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateButtons();
+      document.querySelectorAll('[data-install-btn]').forEach(function(btn) {
+        btn.addEventListener('click', handleInstall);
+      });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') ['modal-ios','modal-android'].forEach(function(id) {
+        var m = document.getElementById(id); if (m) m.style.display = 'none';
+      });
+    });
+  })();
+</script>
+
+<style>
+/* ── Install Modal ── */
+#modal-ios, #modal-android, #modal-android-confirm {
+  display: none; position: fixed; inset: 0; z-index: 9999;
+  align-items: flex-end; justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.im-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(6px);
+}
+.im-dialog {
+  position: relative; z-index: 1;
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 500px;
+  max-height: 92vh; overflow-y: auto;
+  padding: 14px 14px 20px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,.18);
+  animation: imSlideUp .3s cubic-bezier(.32,.72,0,1) both;
+}
+@keyframes imSlideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.im-close {
+  position: absolute; top: 14px; right: 16px;
+  background: #F2F2F7; border: none; border-radius: 50%;
+  width: 30px; height: 30px; font-size: 14px; color: #666;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  z-index: 1;
+}
+/* Imagem */
+.im-img-wrap {
+  width: 100%; border-radius: 14px; overflow: hidden;
+  margin-bottom: 10px;
+}
+.im-img {
+  width: 100%;
+  padding-bottom: 150%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: top center;
+}
+/* Botões */
+.im-actions {
+  display: flex; gap: 10px;
+}
+.im-btn-cancel {
+  flex: 1; padding: 15px;
+  background: #F2F2F7; color: #444;
+  border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 500; font-family: 'Inter', sans-serif;
+  cursor: pointer;
+}
+.im-btn {
+  flex: 2; padding: 15px;
+  background: #1A6275; color: #fff;
+  border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: background .15s;
+}
+.im-btn:hover { background: #154f5e; }
+/* Lista Android fallback */
+.im-list { padding-left: 22px; margin: 16px 0 20px; }
+.im-list li { font-size: 14px; color: #444; margin-bottom: 10px; line-height: 1.5; }
+.im-list strong { color: #111; }
+/* Cabeçalho (usado no Android fallback) */
+.im-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+.im-icon { border-radius: 12px; flex-shrink: 0; }
+.im-title { font-family: 'Instrument Serif',serif; font-size: 20px; line-height: 1.25; color: #111; margin-bottom: 5px; }
+.im-subtitle { font-size: 13px; color: #1A6275; font-weight: 500; }
+</style>
+
+<script>
+/* ── Calculadora de valor ── */
+(function() {
+  var TEMPO_MANUAL = 90;
+  var TEMPO_REAL = 8;
+
+  var pacotes = [
+    { nome: '100 correções',  preco: 'R$ 16,90',  creditos: 100  },
+    { nome: '300 correções',  preco: 'R$ 44,90',  creditos: 300  },
+    { nome: '600 correções',  preco: 'R$ 79,90',  creditos: 600  },
+    { nome: '1000 correções', preco: 'R$ 119,90', creditos: 1000 },
+    { nome: '1500 correções', preco: 'R$ 169,90', creditos: 1500 },
+    { nome: '3000 correções', preco: 'R$ 299,90', creditos: 3000 },
+  ];
+
+  function calcular() {
+    var turmas = parseInt(document.getElementById('c-turmas').value) || 0;
+    var alunos = parseInt(document.getElementById('c-alunos').value) || 0;
+    var provas = parseInt(document.getElementById('c-provas').value) || 0;
+
+    if (!turmas || !alunos || !provas) return;
+
+    var totalCorrecoes = turmas * alunos * provas;
+    var economiaSegundos = Math.max(0, TEMPO_MANUAL - TEMPO_REAL);
+    var totalEconomiaHoras = (economiaSegundos * totalCorrecoes) / 3600;
+
+    var pkgIdeal = pacotes[pacotes.length - 1];
+    for (var i = 0; i < pacotes.length; i++) {
+      if (pacotes[i].creditos >= totalCorrecoes) { pkgIdeal = pacotes[i]; break; }
+    }
+
+    var precoNumerico = parseFloat(
+      pkgIdeal.preco.replace('R$', '').replace('.', '').replace(',', '.').trim()
+    );
+    var custoReal = (totalCorrecoes / pkgIdeal.creditos) * precoNumerico;
+    var custoPorHora = totalEconomiaHoras > 0 ? (custoReal / totalEconomiaHoras) : 0;
+    var custoPorHoraFormatado = 'R$ ' + custoPorHora.toFixed(2).replace('.', ',');
+
+    document.getElementById('r-tempo').textContent =
+      totalEconomiaHoras >= 1
+        ? totalEconomiaHoras.toFixed(1).replace('.', ',') + 'h'
+        : Math.round(totalEconomiaHoras * 60) + 'min';
+
+    document.getElementById('r-correcoes').textContent = totalCorrecoes;
+    document.getElementById('r-pkg-nome').textContent  = pkgIdeal.nome;
+    document.getElementById('r-pkg-preco').textContent = pkgIdeal.preco;
+    document.getElementById('r-hourcost').textContent  = custoPorHoraFormatado;
+    document.getElementById('r-hourcost-msg').textContent =
+      custoPorHora <= 10
+        ? 'Menos do que um café. Cada hora que o PicGrade devolve a você custa isso.'
+        : 'Cada hora que o PicGrade devolve a você custa isso.';
+    document.getElementById('r-pkg-desc').textContent  =
+      totalCorrecoes <= pkgIdeal.creditos
+        ? 'Suficiente para o seu semestre inteiro'
+        : 'Melhor custo para o seu volume';
+
+    document.getElementById('calc-result').classList.add('visible');
+  }
+
+  ['c-turmas','c-alunos','c-provas'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('input', calcular);
+  });
+})();
+</script>
+<style>
+.em-breve-toast {
+  display: none;
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff;
+  font-size: 14px; font-weight: 500;
+  padding: 14px 24px; border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.25);
+  z-index: 9999; white-space: nowrap;
+  animation: toastIn .25s ease;
+}
+@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+</style>
+
+<div class="em-breve-toast" id="em-breve-toast">
+  🚧 Em breve — estamos terminando o desenvolvimento do aplicativo.
+</div>
+
+<script>
+function showEmBreve(e) {
+  if (e) e.preventDefault();
+  // Link futuro: https://gabaritou-chi.vercel.app
+
+  // Se estiver em desktop, mostrar a tela de aviso mobile-only
+  if (window.innerWidth >= 768) {
+    document.getElementById('desktop-wall').style.display = 'flex';
+    return;
+  }
+
+  // Em mobile, mostrar o toast de "em breve"
+  var toast = document.getElementById('em-breve-toast');
+  toast.style.display = 'block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(function() {
+    toast.style.display = 'none';
+  }, 3500);
+}
+
+function closeDesktopWall() {
+  document.getElementById('desktop-wall').style.display = 'none';
+}
+</script>
+<!-- DESKTOP WALL v2 -->
+<div id="desktop-wall">
+  <button onclick="closeDesktopWall()" style="position:absolute;top:24px;right:24px;background:white;border:1px solid var(--border);border-radius:50%;width:36px;height:36px;font-size:16px;color:var(--slate);cursor:pointer;">✕</button>
+  <svg class="dw-icon" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="56" height="56" rx="13" fill="#1A6275"/>
+    <rect x="11" y="11" width="14" height="14" rx="3" fill="white"/>
+    <rect x="31" y="11" width="14" height="14" rx="3" fill="white" opacity=".4"/>
+    <rect x="11" y="31" width="14" height="14" rx="3" fill="white" opacity=".4"/>
+    <rect x="31" y="31" width="14" height="14" rx="3" fill="white" opacity=".2"/>
+  </svg>
+  <div class="dw-title">O PicGrade foi feito<br>para o celular.</div>
+  <div class="dw-sub">Aponte a câmera do seu smartphone para o QR code abaixo e acesse pelo celular.</div>
+  <div class="dw-qr">
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https%3A%2F%2Fgabaritou-chi.vercel.app&ecc=H" alt="QR Code gabaritou-chi.vercel.app" width="220" height="220" />
+    <div class="dw-qr-label">gabaritou-chi.vercel.app</div>
+  </div>
+</div>
+
+
+</body>
+<script>
+  (function(){
+    try{
+      const navRight = document.querySelector('.nav-right');
+      if(navRight && !navRight.querySelector('a[href="/blog"]')){
+        const a = document.createElement('a');
+        a.href = '/blog';
+        a.className = 'btn-nav-login';
+        a.style.marginLeft = '10px';
+        a.textContent = 'Blog';
+        navRight.appendChild(a);
+      }
+    }catch(e){console.warn(e)}
+  })();
+</script>
+</html>
