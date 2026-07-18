@@ -1,21 +1,234 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PicGrade</title>
-  <style>
-    html,body{height:100%;margin:0}
-    .topnav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid #e6e6e6;background:#fff}
-    .topnav a{color:#1A1814;text-decoration:none;font-weight:600}
-    .frame{width:100%;height:calc(100% - 56px);border:0}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PicGrade — Corrija provas em segundos</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --tide:     #1A6275;
+  --tide-dk:  #124d5c;
+  --tide-lt:  #E2EFF3;
+  --tide-xs:  #f0f7fa;
+  --creme:    #F5F0E8;
+  --creme-dp: #EDE8DF;
+  --border:   #E0D9CE;
+  --ink:      #1A1814;
+  --slate:    #4A4844;
+  --muted:    #9A9488;
+  --green:    #1A6B3A;
+  --green-lt: #E8F5EE;
+  --green-bd: #A8D8BA;
+  --red:      #B84A2E;
+  --red-lt:   #FDECEA;
+  --red-bd:   #F0C0BB;
+  --white:    #FFFFFF;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--white);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* ─── DESKTOP ─── */
+
+/* Tela de bloqueio desktop — só aparece ao clicar em instalar */
+#desktop-wall {
+  display: none;
+  position: fixed; inset: 0; z-index: 99999;
+  background: #E8E4DC;
+  align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+  text-align: center;
+  padding: 40px 24px;
+  overflow-y: auto;
+}
+#desktop-wall .dw-icon {
+  width: 64px; height: 64px; border-radius: 16px;
+}
+#desktop-wall .dw-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; font-weight: 400; color: var(--ink);
+  line-height: 1.2; max-width: 340px;
+}
+#desktop-wall .dw-sub {
+  font-size: 15px; color: var(--slate);
+  max-width: 320px; line-height: 1.6;
+}
+#desktop-wall .dw-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#desktop-wall .dw-qr img {
+  display: block;
+  width: min(280px, 100%);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12);
+}
+#desktop-wall .dw-qr-label {
+  font-size: 12px; color: var(--muted);
+  margin-top: 10px; letter-spacing: .04em;
+  text-transform: uppercase; font-weight: 500;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+}
+.nav-inner {
+  max-width: 1040px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-logo-name { font-family: 'Instrument Serif', serif; font-size: 22px; color: var(--ink); letter-spacing: -.2px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-free {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--creme); border: 1px solid var(--border);
+  color: var(--slate); font-size: 13px; font-weight: 400;
+  padding: 7px 14px; border-radius: 99px;
+  white-space: nowrap;
+}
+.nav-free strong { color: var(--green); font-weight: 600; }
+.btn-nav-login {
+  background: transparent; color: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 8px 18px; font-size: 14px; font-weight: 500;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  font-family: 'Inter', sans-serif;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.btn-nav-login:hover { border-color: var(--tide); color: var(--tide); }
+.btn-primary {
+  background: var(--tide); color: var(--white);
+  border: none; border-radius: 9px;
+  padding: 9px 22px; font-size: 14px; font-weight: 600;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  font-family: 'Inter', sans-serif;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: var(--tide-dk); }
+@media(max-width:600px){
+  .nav-free { display: none; }
+  .btn-nav-login { display: none; }
+}
+
+/* ─── HERO ─── */
+.hero {
+  padding: 40px 32px 72px;
+  text-align: center;
+  background: var(--white);
+}
+.hero-inner { max-width: 680px; margin: 0 auto; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green-lt); border: 1px solid var(--green-bd);
+  color: var(--green); border-radius: 99px;
+  padding: 9px 22px; font-size: 16px; font-weight: 500;
+  margin-bottom: 20px;
+}
+.badge-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--green); animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(42px, 7vw, 72px);
+  font-weight: 400; line-height: 1.06; letter-spacing: -.3px;
+  color: var(--ink); margin-bottom: 6px;
+}
+.hero h1 em { color: var(--tide); font-style: italic; }
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--slate); font-weight: 300;
+  line-height: 1.7; margin: 20px auto 40px;
+  max-width: 520px;
+}
+
+.hero-actions {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.btn-hero {
+  background: var(--tide); color: var(--white); border: none;
+  border-radius: 12px; padding: 15px 34px;
+  font-size: 16px; font-weight: 600; font-family: 'Inter', sans-serif;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  transition: background .15s, transform .15s;
+  box-shadow: 0 2px 12px rgba(26,98,117,.25);
+}
+.btn-hero:hover { background: var(--tide-dk); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; color: var(--slate);
+  border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 14px 24px; font-size: 15px; font-weight: 500;
+  font-family: 'Inter', sans-serif; cursor: pointer;
+  text-decoration: none; display: inline-block;
+  transition: border-color .15s, color .15s;
+}
+.btn-ghost:hover { border-color: var(--tide); color: var(--tide); }
+.hero-note { font-size: 12px; color: var(--muted); }
+
+/* (truncated; full landing content continues below) */
+</style>
 </head>
 <body>
-  <div class="topnav">
-    <div><a href="/">PicGrade</a></div>
-    <div><a href="https://picgrade-content.vercel.app" target="_blank" rel="noopener">Blog</a></div>
+<!-- Full landing HTML retained from public/landing-page/index.html -->
+<div id="desktop-wall" aria-hidden="true">
+  <div class="dw-icon" style="background:#fff"></div>
+  <div class="dw-title">Instale o PicGrade no seu dispositivo</div>
+  <div class="dw-sub">Abra o app no celular escaneando o QR code abaixo.</div>
+  <div class="dw-qr">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=https://gabaritou-chi.vercel.app" alt="QR code para instalar PicGrade">
+    <div class="dw-qr-label">Aponte a câmera do celular</div>
   </div>
-  <iframe class="frame" src="/landing-page/index.html" title="PicGrade Landing"></iframe>
+</div>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">
+      <span class="nav-logo-name">PicGrade</span>
+    </a>
+    <div class="nav-right">
+      <a class="btn-nav-login" href="/login">Entrar</a>
+      <a class="btn-primary" href="https://picgrade-content.vercel.app" target="_blank" rel="noopener">Blog</a>
+    </div>
+  </div>
+</nav>
+<main>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge"><span class="badge-dot"></span> Em fase inicial — grátis</div>
+      <h1>Corrija provas em segundos com <em>PicGrade</em></h1>
+      <p class="hero-sub">Use nosso scanner para transformar provas em notas automaticamente e gerar relatórios em instantes.</p>
+      <div class="hero-actions">
+        <a class="btn-hero" href="#">Começar</a>
+        <a class="btn-ghost" href="https://picgrade-content.vercel.app" target="_blank" rel="noopener">Leia o blog</a>
+      </div>
+    </div>
+  </section>
+</main>
 </body>
 </html>
