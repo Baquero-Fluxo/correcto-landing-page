@@ -1,10 +1,10 @@
 {
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/landing-page/index.html",
-      "statusCode": 302
-    }
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/$", "dest": "/public/index.html" },
+    { "src": "^/public/(.*)$", "dest": "/public/$1" }
   ],
   "rewrites": [
     {
