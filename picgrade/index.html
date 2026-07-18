@@ -39,3 +39,21 @@
 </body>
 </html>
 <!-- deployed: 2026-07-18T22:35:45-00:00 -->
+<script>
+  (function(){
+    try{
+      var navInner = document.querySelector('.nav-inner');
+      if(!navInner) return;
+      if(!document.querySelector('a[href="/blog"]')){
+        var a = document.createElement('a');
+        a.href = '/blog';
+        a.className = 'btn-nav-login';
+        a.style.marginLeft = '10px';
+        a.textContent = 'Blog';
+        var navRight = navInner.querySelector('.nav-right');
+        if(navRight) navRight.appendChild(a);
+        else navInner.appendChild(a);
+      }
+    }catch(e){console.error(e)}
+  })();
+</script>
