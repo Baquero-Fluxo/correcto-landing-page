@@ -1,9 +1,12 @@
 {
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
-      "destination": "/public/index.html"
-    },
+      "destination": "/landing-page/index.html",
+      "statusCode": 302
+    }
+  ],
+  "rewrites": [
     {
       "source": "/blog/:path*",
       "destination": "https://picgrade-content.vercel.app/blog/:path*"
