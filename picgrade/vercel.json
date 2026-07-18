@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/blog/:path*",
+      "destination": "https://picgrade-content.vercel.app/blog/:path*"
+    },
+    {
+      "source": "/blog",
+      "destination": "https://picgrade-content.vercel.app/blog"
+    }
+  ]
+}
