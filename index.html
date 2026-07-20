@@ -114,6 +114,13 @@ nav {
   white-space: nowrap;
 }
 .btn-nav-login:hover { border-color: var(--tide); color: var(--tide); }
+.nav-blog-link {
+  color: var(--slate); font-size: 14px; font-weight: 500;
+  text-decoration: none; padding: 8px 4px;
+  transition: color .15s;
+  white-space: nowrap;
+}
+.nav-blog-link:hover { color: var(--tide); }
 .btn-primary {
   background: var(--tide); color: var(--white);
   border: none; border-radius: 9px;
@@ -760,6 +767,7 @@ footer {
       <span class="nav-logo-name">PicGrade</span>
     </a>
     <div class="nav-right">
+      <a href="/blog" class="nav-blog-link">Blog</a>
       <!-- href temporariamente desativado: app em desenvolvimento -->
       <a href="#" class="btn-primary em-breve" onclick="showEmBreve(event)">Instalar grátis →</a>
     </div>
