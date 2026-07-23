@@ -7,6 +7,18 @@
     {
       "source": "/blog/:path*",
       "destination": "https://picgrade-content.vercel.app/blog/:path*"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://picgrade-content.vercel.app/robots.txt"
+    },
+    {
+      "source": "/sitemap-index.xml",
+      "destination": "https://picgrade-content.vercel.app/sitemap-index.xml"
+    },
+    {
+      "source": "/sitemap-0.xml",
+      "destination": "https://picgrade-content.vercel.app/sitemap-0.xml"
     }
   ]
 }
