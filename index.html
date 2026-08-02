@@ -769,8 +769,7 @@ footer {
     </a>
     <div class="nav-right">
       <a href="/blog" class="nav-blog-link">Blog</a>
-      <!-- href temporariamente desativado: app em desenvolvimento -->
-      <a href="#" class="btn-primary em-breve" onclick="showEmBreve(event)">Instalar grátis →</a>
+      <a href="https://gabaritou-chi.vercel.app" class="btn-primary" onclick="goToApp(event)">Instalar grátis →</a>
     </div>
   </div>
 </nav>
@@ -804,7 +803,7 @@ footer {
     </p>
     <div class="hero-actions">
       <!-- href temporariamente desativado: app em desenvolvimento -->
-      <a href="#" class="btn-hero em-breve" onclick="showEmBreve(event)">Instalar grátis → 30 correções grátis</a>
+      <a href="https://gabaritou-chi.vercel.app" class="btn-hero" onclick="goToApp(event)">Instalar grátis → 30 correções grátis</a>
     </div>
     <p class="hero-note">Sem cartão de crédito. Sem assinatura.</p>
   </div>
@@ -1023,7 +1022,7 @@ footer {
 
     <div style="text-align:center; margin-top: 32px;">
       <!-- href temporariamente desativado: app em desenvolvimento -->
-      <a href="#" class="btn-hero em-breve" onclick="showEmBreve(event)">Instalar grátis → 30 correções grátis</a>
+      <a href="https://gabaritou-chi.vercel.app" class="btn-hero" onclick="goToApp(event)">Instalar grátis → 30 correções grátis</a>
     </div>
 
     <p class="pricing-note">
@@ -1080,7 +1079,7 @@ footer {
     <h2>Corrija provas em <em>segundos.</em></h2>
     <p>Teste gratuitamente e veja quanto tempo você vai recuperar já na primeira turma.</p>
     <!-- href temporariamente desativado: app em desenvolvimento -->
-      <a href="#" class="btn-hero em-breve" onclick="showEmBreve(event)">Instalar grátis → 30 correções grátis</a>
+      <a href="https://gabaritou-chi.vercel.app" class="btn-hero" onclick="goToApp(event)">Instalar grátis → 30 correções grátis</a>
     <p class="cta-sub">Sem cartão. Sem assinatura. Sem complicação.</p>
   </div>
 </section>
@@ -1138,8 +1137,7 @@ footer {
 
     function handleInstall(e) {
       e.preventDefault();
-      // window.open('https://gabaritou-chi.vercel.app', '_blank'); // em desenvolvimento
-      showEmBreve();
+      window.location.href = 'https://gabaritou-chi.vercel.app';
     }
 
     /* ── Modal iOS ── */
@@ -1381,42 +1379,14 @@ footer {
   });
 })();
 </script>
-<style>
-.em-breve-toast {
-  display: none;
-  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
-  background: var(--ink); color: #fff;
-  font-size: 14px; font-weight: 500;
-  padding: 14px 24px; border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,.25);
-  z-index: 9999; white-space: nowrap;
-  animation: toastIn .25s ease;
-}
-@keyframes toastIn { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
-</style>
-
-<div class="em-breve-toast" id="em-breve-toast">
-  🚧 Em breve — estamos terminando o desenvolvimento do aplicativo.
-</div>
-
 <script>
-function showEmBreve(e) {
-  if (e) e.preventDefault();
-  // Link futuro: https://gabaritou-chi.vercel.app
-
-  // Se estiver em desktop, mostrar a tela de aviso mobile-only
+function goToApp(e) {
+  // O app é mobile-only (PWA). Em desktop, mostramos a tela com QR code
+  // em vez de navegar; em mobile, o link segue normalmente para o app.
   if (window.innerWidth >= 768) {
+    if (e) e.preventDefault();
     document.getElementById('desktop-wall').style.display = 'flex';
-    return;
   }
-
-  // Em mobile, mostrar o toast de "em breve"
-  var toast = document.getElementById('em-breve-toast');
-  toast.style.display = 'block';
-  clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(function() {
-    toast.style.display = 'none';
-  }, 3500);
 }
 
 function closeDesktopWall() {
